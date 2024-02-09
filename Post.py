@@ -6,8 +6,7 @@ class Post:
     # _comments = []  # A list of dictionaries
 
     # Constructors:
-    def __init__(self, user: 'User'):
-        self._publisher = user
+    def __init__(self):
         self._users_liked = []
         self._comments = []
 
@@ -19,8 +18,8 @@ class TextPost(Post):
     # __content = ""
 
     # Constructor:
-    def __init__(self, user: 'User', content: str):
-        super().__init__(user)
+    def __init__(self, content: str):
+        super().__init__()
         self.__content = content
 
     # Methods:
@@ -30,8 +29,8 @@ class TextPost(Post):
 
 class ImagePost(Post):
     # Constructor:
-    def __init__(self, user: 'User', path: str):
-        super().__init__(user)
+    def __init__(self, path: str):
+        super().__init__()
         self.__path = path
 
     # Methods:
@@ -41,8 +40,8 @@ class ImagePost(Post):
 
 class SalePost(Post):
     # Constructor
-    def __init__(self, user: 'User', description: str, price: int, town: str):
-        super().__init__(user)
+    def __init__(self, description: str, price: int, town: str):
+        super().__init__()
         self.__description = description
         self.__price = price
         self.__town = town
