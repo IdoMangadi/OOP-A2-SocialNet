@@ -86,7 +86,7 @@ def main():
     print(u1)
     print()
 
-    # Post printing
+    # Post.py printing
     print(p1)
     print(p2)
 
