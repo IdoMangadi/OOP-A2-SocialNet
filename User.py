@@ -1,3 +1,4 @@
+from Post import *
 
 
 class User:
@@ -11,6 +12,7 @@ class User:
         self.__username = username
         self.__password = password
         self.__follows = []
+        self.__posts = []
 
     # Methods:
     def get_name(self) -> str:
@@ -41,4 +43,36 @@ class User:
         if user_to_unfollow in self.__follows:
             self.__follows.remove(user_to_unfollow)
             print("{} unfollowed {}".format(self.__username, user_to_unfollow.get_name()))
+
+
+    def publish_post(self, *args) -> Post:
+        # Implementing 'Factory' design pattern:
+        if type(args[0]) == str:
+            # Handling TextPost:
+            if args[0] == "Text":
+                if args[1] is not None:
+                    p = TextPost(self, args[1])
+                    self.__posts.append(p)
+                    print("{} published a post:\n\"{}\"".format(self.__username, args[1]))
+                    return p
+            # Handling ImagePost:
+            if args[0] == "Image":
+                if args[1] is not None:
+                    p = ImagePost(self, args[1])
+                    self.__posts.append(p)
+                    print("{} Posted a picture".format(self.__username))
+                    return p
+            # Handling a SalePost:
+            if args[0] == "Sale":
+                if args[1] is not None:
+                    p = SalePost(self, args[1], args[2], args[3])
+                    self.__posts.append(p)
+                    print("{} posted a product for sale:\nFor sale! {}, price: {}, pickup from: {}"
+                          .format(self.__username, args[1], args[2], args[3]))
+                    return p
+        return None
+
+
+
+
 
