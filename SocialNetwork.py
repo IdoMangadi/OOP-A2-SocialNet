@@ -2,14 +2,11 @@ from User import User
 
 
 class SocialNetwork:
-    # Fields:
-    __name = ""
-    __users = []
-
     # Constructor:
     # TODO: singleton implementation needed!
     def __init__(self, name):
         self.__name = name
+        self.__users = []
         print("The social network {} was created!".format(self.__name))
 
     # Methods:
