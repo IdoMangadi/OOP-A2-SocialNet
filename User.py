@@ -2,91 +2,96 @@ from Post import *
 
 
 class Observer:
+    """
+    This class represents the 'Observer' design pattern
+    """
     def __init__(self):
         self.notifications = []
 
-    def update(self, publisher: 'User'):
-        notification = f"{publisher.get_name()} has a new post"
-        self.notifications.append(notification)
+    def update(self, notification_type: str, publisher: 'User'):
+        pass
 
 
-class Publisher:
-    def __init__(self):
-        self.__followers = []
-
-    def follow(self, observer: 'Observer'):
-        if observer not in self.__followers:
-            self.__followers.append(observer)
-
-    def unfollow(self, obsever: 'Observer'):
-        self.__followers.remove(obsever)
-
-    def notify_observers(self):
-        for observer in self.__followers:
-            observer.update()
-
-
-class User(Observer, Publisher):
+class User(Observer):
     # Constructor:
     def __init__(self, username: str, password: str):
+        super().__init__()
+        self.__is_connected = False
         self.__username = username
         self.__password = password
-        self.__follows = []
         self.__posts = []
         self.__followers = []
-        self.__notifications = []
 
     # Methods:
     def get_name(self) -> str:
         return self.__username
 
-    def get_password(self):
+    def get_password(self) -> str:
         return self.__password
 
-    def set_follower(self, new_follower: 'User'):
-        if new_follower not in self.__followers:
-            self.__followers.append(new_follower)
+    def is_connected(self) -> bool:
+        return self.__is_connected
 
-    def follow(self, user_to_follow: 'User') -> None:
-        """
-        This function append the user_to_follow to the current user's follows list.
-        If already exist, it will not be appended.
-        :param user_to_follow:
-        :return: None
-        """
-        # Validation check:
-        if self == user_to_follow:
+    def set_is_connected(self, is_connected: bool) -> None:
+        self.__is_connected = is_connected
+
+    def __str__(self):
+        return f"User name: {self.__username}, Number of posts: {len(self.__posts)}, " \
+               f"Number of followers: {len(self.__followers)} "
+
+    def print_notifications(self):
+        print(f"{self.__username}'s notifications:")
+        for notification in self.notifications:
+            print(notification)
+
+    def add_follower(self, observer: 'Observer'):
+        if observer not in self.__followers:
+            self.__followers.append(observer)
+
+    def remove_follower(self, observer: 'Observer'):
+        if observer in self.__followers:
+            self.__followers.remove(observer)
+
+    def follow(self, user_to_follow: 'User'):
+        # Connection validation check
+        if not self.__is_connected:
+            pass
+        if user_to_follow == self:
             return None
-        # Checking if already exist:
-        if user_to_follow not in self.__follows:
-            self.__follows.append(user_to_follow)
-            print("{} started following {}".format(self.__username, user_to_follow.get_name()))
-        # Updating user_to_follow about new follower:
-        user_to_follow.set_follower(self)
+        user_to_follow.add_follower(self)
+        print(f"{self.get_name()} started following {user_to_follow.get_name()}")
 
     def unfollow(self, user_to_unfollow: 'User') -> None:
-        """
-        Removes the instance of the parameter user_to_unfollow from the follows list.
-        Note: the 'follow' function will append to the list only users that are not yet there.
-        :param user_to_unfollow:
-        :return: None
-        """
-        if user_to_unfollow in self.__follows:
-            self.__follows.remove(user_to_unfollow)
-            print("{} unfollowed {}".format(self.__username, user_to_unfollow.get_name()))
+        # Connection validation check
+        if not self.__is_connected:
+            pass
+        user_to_unfollow.remove_follower(self)
+        print(f"{self.__username} unfollowed {user_to_unfollow.get_name()}")
 
-    def new_post_notification(self, publisher: 'User'):
-        notification = "{} has a new post".format(publisher.get_name())
-        self.__notifications.append(notification)
-
-    """
-    Activated when a user (publisher) publishing a new post.
-    """
-    def notify_followers(self):
+    def notify_followers(self, notification_type: str):
         for follower in self.__followers:
-            follower.new_post_notification(self)
+            follower.update(notification_type, self)
+
+    def update(self, notification_type: str, publisher: 'User'):
+        if notification_type == "post":
+            notification = f"{publisher.get_name()} has a new post"
+            self.notifications.append(notification)
+        if notification_type == "like":
+            notification = f"{publisher.get_name()} liked your post"
+            self.notifications.append(notification)
+        if notification_type == "comment":
+            notification = f"{publisher.get_name()} commented on your post"
+            self.notifications.append(notification)
 
     def publish_post(self, *args) -> Post:
+        """
+        This functions implementing the 'Factory' design pattern as requested.
+        :param args: args[0] = the type of the post (str), args[1..3] = content
+        :return:
+        """
+        # Connection validation check
+        if not self.__is_connected:
+            pass
         # Implementing 'Factory' design pattern:
         if type(args[0]) == str:
             # Handling TextPost:
@@ -94,36 +99,25 @@ class User(Observer, Publisher):
                 if args[1] is not None:
                     p = TextPost(self, args[1])  # Creating a new text post
                     self.__posts.append(p)  # Updating the self posts list
-                    self.notify_followers()  # notify all the followers using the observer DP
+                    self.notify_followers("post")  # notify all the followers using the observer DP
                     print(p)
                     return p
             # Handling ImagePost:
             if args[0] == "Image":
                 if args[1] is not None:
-                    p = ImagePost(self, args[1])  # Creating a new image post
+                    p = ImagePost(self, args[1])  # Creating a new image post with args[1] = image path
                     self.__posts.append(p)  # Updating the self posts list
-                    self.notify_followers()  # notify all the followers using the observer DP
+                    self.notify_followers("post")  # notify all the followers using the observer DP
                     print(p)
-                    # TODO: complete the image opening according to instructions
                     return p
             # Handling a SalePost:
             if args[0] == "Sale":
                 if args[1] is not None:
                     p = SalePost(self, args[1], args[2], args[3])  # Creating a new sale post
                     self.__posts.append(p)  # Updating the self posts list
-                    self.notify_followers()  # notify all the followers using the observer DP
+                    self.notify_followers("post")  # notify all the followers using the observer DP
                     print(p)
                     return p
-
-    def like_notification(self, user_liked: 'User'):
-        notification = "{} liked your post".format(user_liked.get_name())
-        self.__notifications.append(notification)
-        print(f"notification to {self.get_name()}: " + notification)
-
-    def comment_notification(self, user_commented: 'User', content: str):
-        notification = "{} commented on your post: {}".format(user_commented.get_name(), content)
-        self.__notifications.append(notification)
-        print(f"notification to {self.get_name()}:" + notification)
 
 
 
