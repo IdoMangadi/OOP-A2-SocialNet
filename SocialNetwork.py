@@ -24,15 +24,15 @@ class SocialNetwork:
     # Methods:
     def sign_up(self, username: str, password: str) -> User:
         # username validation check:
-        for signed_user in self.__users:
+        for signed_user in self._instance.__users:
             if signed_user.get_name() == username:
                 pass
         if len(password) < 4 or len(password) > 8:
             pass
 
         user = User(username, password)  # Creating the user
-        self.__users.append(user)  # Appending to the users list
-        self.__connected_users.append(user)
+        self._instance.__users.append(user)  # Appending to the users list
+        self._instance.__connected_users.append(user)
         user.set_is_connected(True)
         return user
 
@@ -45,14 +45,14 @@ class SocialNetwork:
                     print(f"{signed_user.get_name()} connected")
 
     def log_out(self, username: str):
-        for connected_user in self.__connected_users:
+        for connected_user in self._instance.__connected_users:
             if connected_user.get_name() == username:
-                self.__connected_users.remove(connected_user)
+                self._instance.__connected_users.remove(connected_user)
                 connected_user.set_is_connected(False)
                 print(f"{connected_user.get_name()} disconnected")
 
     def __str__(self) -> str:
-        res = f"{self.__name} social network:"
-        for user in self.__users:
+        res = f"{self._instance.__name} social network:"
+        for user in self._instance.__users:
             res = res + "\n" + f"{user}"
         return res
