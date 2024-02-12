@@ -52,7 +52,7 @@ class SocialNetwork:
                 print(f"{connected_user.get_name()} disconnected")
 
     def __str__(self) -> str:
-        res = f"{self.__name} social network:\n"
+        res = f"{self.__name} social network:"
         for user in self.__users:
-            res = res + f"{user}" + "\n"
+            res = res + "\n" + f"{user}"
         return res

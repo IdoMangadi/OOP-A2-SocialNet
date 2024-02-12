@@ -37,7 +37,7 @@ class User(Observer):
 
     def __str__(self):
         return f"User name: {self.__username}, Number of posts: {len(self.__posts)}, " \
-               f"Number of followers: {len(self.__followers)} "
+               f"Number of followers: {len(self.__followers)}"
 
     def print_notifications(self):
         print(f"{self.__username}'s notifications:")
