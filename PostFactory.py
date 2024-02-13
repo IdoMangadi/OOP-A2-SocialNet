@@ -13,6 +13,7 @@ class PostFactory:
             post = ImagePost(user, args[1])
         if args[0] == "Sale":
             post = SalePost(user, args[1], args[2], args[3])
+        post.notify(user, "post", "")
         return post
 
 
