@@ -1,4 +1,5 @@
-from Post import *
+from PostFactory import *
+from typing import List
 
 
 class Observer:
@@ -8,7 +9,7 @@ class Observer:
     def __init__(self):
         self.notifications = []
 
-    def update(self, notification_type: str, publisher: 'User'):
+    def update(self, notification: str):
         pass
 
 
@@ -52,6 +53,9 @@ class User(Observer):
         if observer in self.__followers:
             self.__followers.remove(observer)
 
+    def get_followers(self) -> 'List':
+        return self.__followers
+
     def follow(self, user_to_follow: 'User'):
         # Connection validation check
         if not self.__is_connected:
@@ -65,60 +69,16 @@ class User(Observer):
         # Connection validation check
         if not self.__is_connected:
             pass
-        user_to_unfollow.remove_follower(self)
-        print(f"{self.__username} unfollowed {user_to_unfollow.get_name()}")
+        if self in user_to_unfollow.get_followers():
+            user_to_unfollow.remove_follower(self)
+            print(f"{self.__username} unfollowed {user_to_unfollow.get_name()}")
 
-    def notify_followers(self, notification_type: str):
-        for follower in self.__followers:
-            follower.update(notification_type, self)
-
-    def update(self, notification_type: str, publisher: 'User'):
-        if notification_type == "post":
-            notification = f"{publisher.get_name()} has a new post"
-            self.notifications.append(notification)
-        if notification_type == "like":
-            notification = f"{publisher.get_name()} liked your post"
-            self.notifications.append(notification)
-        if notification_type == "comment":
-            notification = f"{publisher.get_name()} commented on your post"
-            self.notifications.append(notification)
+    def update(self, notification: str):
+        self.notifications.append(notification)
 
     def publish_post(self, *args) -> Post:
-        """
-        This functions implementing the 'Factory' design pattern as requested.
-        :param args: args[0] = the type of the post (str), args[1..3] = content
-        :return:
-        """
-        # Connection validation check
-        if not self.__is_connected:
-            pass
-        # Implementing 'Factory' design pattern:
-        if type(args[0]) == str:
-            # Handling TextPost:
-            if args[0] == "Text":
-                if args[1] is not None:
-                    p = TextPost(self, args[1])  # Creating a new text post
-                    self.__posts.append(p)  # Updating the self posts list
-                    self.notify_followers("post")  # notify all the followers using the observer DP
-                    print(p)
-                    return p
-            # Handling ImagePost:
-            if args[0] == "Image":
-                if args[1] is not None:
-                    p = ImagePost(self, args[1])  # Creating a new image post with args[1] = image path
-                    self.__posts.append(p)  # Updating the self posts list
-                    self.notify_followers("post")  # notify all the followers using the observer DP
-                    print(p)
-                    return p
-            # Handling a SalePost:
-            if args[0] == "Sale":
-                if args[1] is not None:
-                    p = SalePost(self, args[1], args[2], args[3])  # Creating a new sale post
-                    self.__posts.append(p)  # Updating the self posts list
-                    self.notify_followers("post")  # notify all the followers using the observer DP
-                    print(p)
-                    return p
-
-
-
+        post = PostFactory.post_factory(self, *args)
+        self.__posts.append(post)  # Updating the self posts list
+        print(post)
+        return post
 

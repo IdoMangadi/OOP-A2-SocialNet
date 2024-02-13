@@ -3,7 +3,25 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 
-class Post:
+class PostFactory:
+    @staticmethod
+    def post_factory(user: 'User', *args) -> 'Post':
+        post = None
+        if args[0] == "Text":
+            post = TextPost(user, args[1])
+        if args[0] == "Image":
+            post = ImagePost(user, args[1])
+        if args[0] == "Sale":
+            post = SalePost(user, args[1], args[2], args[3])
+        return post
+
+
+class Publisher:
+        def notify(self, publisher: 'User', notification_type: str, notification_content: str):
+            pass
+
+
+class Post(Publisher):
     # Constructor:
     def __init__(self, user: 'User.User'):
         self._publisher = user
@@ -14,25 +32,51 @@ class Post:
     def get_publisher(self) -> 'User.User':
         return self._publisher
 
+    def notify(self, publisher: 'User', notification_type: str, notification_content: str):
+        """
+        This function handling all the notification process by implementing the 'OBSERVER' design pattern.
+        Note: according to the pattern, the 'publisher' is the one that play the roll of the notifier (AKA sender) side.
+        :param publisher: the user that made the action causing the notification.
+        :param notification_type: the type of the action 'publisher' did.
+        :param notification_content: for like will be None, for comment will be the comment's content.
+        :return:
+        """
+        if notification_type == "post":
+            notification = f"{publisher.get_name()} has a new post"
+            for follower in publisher.get_followers():
+                follower.update(notification)
+
+        if notification_type == "like":
+            notification = f"{publisher.get_name()} liked your post"
+            self._publisher.update(notification)
+            print(f"notification to {self._publisher.get_name()}: {publisher.get_name()} liked your post")
+
+        if notification_type == "comment":
+            notification = f"{publisher.get_name()} commented on your post"
+            self._publisher.update(notification)
+            print(f"notification to {self._publisher.get_name()}: "
+                  f"{publisher.get_name()} commented on your post: {notification_content}")
+
     def like(self, user_liked: 'User.User'):
-        # Connection validation check
+        # Connection validation check:
         if not user_liked.is_connected():
             pass
+        # Appending the liker to the liked list of the post:
         if user_liked not in self._users_liked:
             self._users_liked.append(user_liked)
+        # Checking for self liking and calling 'notify':
         if self._publisher != user_liked:
-            self._publisher.update("like", user_liked)
-            print(f"notification to {self._publisher.get_name()}: {user_liked.get_name()} liked your post")
+            self.notify(user_liked, "like", "")
 
     def comment(self, user_commented: 'User.User', content: str):
-        # Connection validation check
+        # Connection validation check:
         if not user_commented.is_connected():
             pass
+        # Appending the comment to the comments list:
         self._comments.append((user_commented, content))
+        # Checking for self commenting and calling 'notify':
         if self._publisher != user_commented:
-            self._publisher.update("comment", user_commented)
-            print(f"notification to {self._publisher.get_name()}: "
-                  f"{user_commented.get_name()} commented on your post: {content}")
+            self.notify(user_commented, "comment", content)
 
     # Method for wrong user behavior:
     def sold(self, password: str):
