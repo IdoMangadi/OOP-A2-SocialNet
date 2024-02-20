@@ -120,9 +120,9 @@ class ImagePost(Post):
             plt.imshow(img)
             plt.axis('off')  # Turn off axis
             plt.show()
+            print("Shows picture")
         except FileNotFoundError:
-            pass
-        print("Shows picture")
+            raise FileNotFoundError("Picture not found at path: {}".format(self.__path))
 
     def __str__(self):
         return f"{self.get_publisher().get_name()} posted a picture\n"

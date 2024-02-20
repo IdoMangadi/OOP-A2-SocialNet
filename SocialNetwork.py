@@ -9,6 +9,7 @@ class SocialNetwork:
     """
 
     def __new__(cls, *args, **kwargs):
+        # Checking if the class has a field named 'instance', if no' creating one
         if not hasattr(cls, 'instance'):
             cls.instance = super(SocialNetwork, cls).__new__(cls)
         return cls.instance
