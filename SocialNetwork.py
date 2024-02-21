@@ -7,6 +7,7 @@ class SocialNetwork:
     This class represent a social network under to the assignment terms.
     In this class we implemented the 'singleton' design pattern.
     """
+    has_attr = False
 
     def __new__(cls, *args, **kwargs):
         # Checking if the class has a field named 'instance', if no' creating one
@@ -16,10 +17,12 @@ class SocialNetwork:
 
     # Constructor:
     def __init__(self, name):
-        self.__name = name
-        self.__users: List[User] = []
-        self.__connected_users: List[User] = []
-        print("The social network {} was created!".format(self.__name))
+        if not self.has_attr:
+            self.__name = name
+            self.__users: List[User] = []
+            self.__connected_users: List[User] = []
+            print("The social network {} was created!".format(self.__name))
+            self.has_attr = True
 
     # Methods:
     def sign_up(self, username: str, password: str) -> User:
